@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-DEFAULT_MODEL = "gemini-2.0-flash"
+DEFAULT_MODEL = "gemini-3.6-flash"
 
 # System prompt: fixes the model's role and output contract for every call.
 # This is what makes the output structured and predictable instead of
@@ -66,13 +66,24 @@ def summarize(text: str, *, model: str = DEFAULT_MODEL, style: str = "concise") 
         ),
     )
 
+    # Pull text out of the response parts directly instead of using the
+    # response.text shortcut, which prints a warning when the response
+    # also includes non-text parts (e.g. internal "thought_signature"
+    # metadata some Gemini models attach alongside the answer).
+    raw_text = "".join(
+        part.text
+        for candidate in response.candidates
+        for part in candidate.content.parts
+        if getattr(part, "text", None)
+    )
+
     try:
-        return json.loads(response.text)
+        return json.loads(raw_text)
     except json.JSONDecodeError:
         # Fallback: model didn't return valid JSON. Surface the raw text
         # so the caller can see what went wrong instead of crashing.
         return {
-            "summary": response.text,
+            "summary": raw_text,
             "key_points": [],
             "risk_flags": ["Model did not return valid JSON — raw output shown in summary."],
         }
