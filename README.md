@@ -42,16 +42,22 @@ cat article.txt | python summarize.py
 python summarize.py --file article.txt --style bullet
 ```
 
-Example output:
+Example output (real test run):
+```bash
+python summarize.py --text "Google Pay lets users make instant UPI payments, but its fraud warnings are often generic rather than explaining why a transaction looks risky."
+```
 ```json
 {
-  "summary": "The article discusses...",
+  "summary": "Google Pay facilitates instant UPI payments for its users. However, its security system currently issues generic fraud warnings that fail to explain the specific reasons a transaction is flagged as risky.",
   "key_points": [
-    "Point one",
-    "Point two",
-    "Point three"
+    "Google Pay enables instant UPI payments.",
+    "Fraud warnings on the platform are frequently generic.",
+    "Users lack clear context on why specific transactions are flagged."
   ],
-  "risk_flags": []
+  "risk_flags": [
+    "Generic fraud warnings may cause users to overlook actual transaction risks.",
+    "Very short source text with limited broader context."
+  ]
 }
 ```
 
@@ -62,3 +68,9 @@ The `risk_flags` field relies on the model's own judgment of what's
 things a domain expert would catch (e.g. a subtly one-sided financial
 claim) or flag things that aren't actually a concern. It's a starting
 signal, not a substitute for review.
+
+During testing, the Gemini API occasionally returned a `503 UNAVAILABLE`
+error under high demand — a transient server-side issue, not a bug in
+this tool. A simple retry resolved it. A production version of this tool
+would want built-in retry/backoff logic rather than relying on the user
+to re-run the command manually.
