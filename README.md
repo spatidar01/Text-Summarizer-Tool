@@ -1,7 +1,4 @@
 # Text-Summarizer-Tool
-We used Gemini AI Studio API Key for this tool 
-
-# Text-Summarizer-Tool
 
 A command-line tool that summarizes any text (pasted, from a file, or piped
 in via stdin) using the Google AI Studio (Gemini) API. It returns a
